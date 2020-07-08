@@ -1,6 +1,7 @@
 #!/bin/sh
 
 set -x
+set -e
 
 # load environment
 if [ -f vars.env ]
@@ -14,6 +15,16 @@ STACK_NAME=buildbaseami
 
 # setup variable for cloudformation file in the s3 bucket
 CF_URL=http://${S3_BUCKET}.s3-${AWS_DEFAULT_REGION}.amazonaws.com/buildBaseAmi.yaml
+
+# Create the s3 bucket
+aws s3api create-bucket \
+    --bucket ${S3_BUCKET} \
+    --region ${AWS_DEFAULT_REGION} \
+    --create-bucket-configuration LocationConstraint=${AWS_DEFAULT_REGION}
+
+# Wait for the s3 bucket to exist
+aws s3api wait bucket-exists \
+    --bucket ${S3_BUCKET}
 
 # upload template file to s3
 aws s3 cp ${DIR}/buildBaseAmi.yaml ${CF_TEMPLATE}
@@ -48,13 +59,23 @@ IMAGE_ID=$(aws ec2 create-image \
 aws ec2 wait image-exists \
     --image-ids ${IMAGE_ID}
 
-# clean up after ourselves
+##  clean up after ourselves
+
 # delete the stack since we no longer need it
 aws cloudformation delete-stack \
     --stack-name ${STACK_NAME}
 aws cloudformation wait stack-delete-complete \
     --stack-name ${STACK_NAME}
+
 # delete the cf file since we no longer need it
 aws s3 rm ${CF_TEMPLATE}
+
+# Delete the s3 bucket
+aws s3api delete-bucket \
+    --bucket ${S3_BUCKET}
+
+# Wait for the s3 bucket to no longer exist
+aws s3api wait bucket-not-exists \
+    --bucket ${S3_BUCKET}
 
 echo "Your ami image id is: ${IMAGE_ID}"
