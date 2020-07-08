@@ -1,0 +1,62 @@
+Description: Create an AMI from an EC2 instance.
+Parameters:
+  ImageId:
+    Description: Image ID for base EC2 instance.
+    Type: AWS::EC2::Image::Id
+    # latest amazon linux 2 as of making this, update as necessary, can probably be scripted to
+    # amzn2-ami-hvm-2.0.20200520.1-x86_64-gp2
+    Default: ami-0e34e7b9ca0ace12d
+  InstanceType:
+    Description: Instance type to launch EC2 instances.
+    Type: String
+    # use a very small one for this
+    Default: t3.micro
+    AllowedValues: [ t3.micro, t3.small, t3.medium, t3.large, t3.xlarge ]
+
+Resources:
+  # Completes when the instance is fully provisioned and ready for AMI creation.
+  AMICreate:
+    Type: AWS::CloudFormation::WaitCondition
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT10M
+  Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref ImageId
+      InstanceType: !Ref InstanceType
+      # BlockDeviceMappings:
+      # - DeviceName: "/dev/xvda"
+      #   Ebs:
+      #     VolumeSize: '10'
+      #     VolumeType: gp2
+      UserData:
+        "Fn::Base64": !Sub |
+          #!/bin/bash -x
+          
+          # put script here for what to add to ami
+          #update
+          sudo yum update -y
+
+          #install docker
+          sudo amazon-linux-extras install docker
+
+          # start service
+          sudo service docker start
+
+          # add docker permissions to user
+          sudo usermod -a -G docker ec2-user
+          sudo chkconfig docker on
+
+          # signal the finishing of the ami
+          /opt/aws/bin/cfn-signal \
+            -e $? \
+            --stack ${AWS::StackName} \
+            --region ${AWS::Region} \
+            --resource AMICreate
+          
+          # shutdonw so the ami can be created
+          shutdown -h now
+Outputs:
+  Instance:
+    Value: !Ref Instance
