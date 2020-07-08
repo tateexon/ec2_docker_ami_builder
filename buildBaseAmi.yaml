@@ -54,6 +54,10 @@ Resources:
             --stack ${AWS::StackName} \
             --region ${AWS::Region} \
             --resource AMICreate
+
+          # # update the ulimits
+          sudo echo "ec2-user soft  nofile 5000" >> /etc/security/limits.conf
+          sudo echo "ec2-user hard  nofile 1048576" >> /etc/security/limits.conf
           
           # shutdonw so the ami can be created
           shutdown -h now
