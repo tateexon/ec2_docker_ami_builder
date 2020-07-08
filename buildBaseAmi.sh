@@ -16,7 +16,7 @@ STACK_NAME=buildbaseami
 CF_URL=http://${S3_BUCKET}.s3-${AWS_DEFAULT_REGION}.amazonaws.com/buildBaseAmi.yaml
 
 # upload template file to s3
-aws s3 cp ${DIR}/../stack/buildBaseAmi.yaml ${CF_TEMPLATE}
+aws s3 cp ${DIR}/buildBaseAmi.yaml ${CF_TEMPLATE}
 
 # validate the template, not always necessary but useful for debugging if something is wrong
 # aws cloudformation validate-template \
@@ -52,3 +52,5 @@ aws cloudformation wait stack-delete-complete \
     --stack-name ${STACK_NAME}
 # delete the cf file since we no longer need it
 aws s3 rm ${CF_TEMPLATE}
+
+echo "Your ami image id is: ${IMAGE_ID}"
