@@ -8,11 +8,11 @@ Uses cloudformation and aws cli v2.
 4. Fill out the vars.env with the gathered information.
 5. Run buildBaseAmi.sh
 
-## Instruction to delete the ami:
+## Instructions to delete the ami:
 1. Run deleteBaseAmi.sh
 
 ### TODO in the future:
-- Specify policies and permissions for the group the user is in should have for this to work.
+- Specify policies and permissions the group the user is in should have for this to work.
 - Cloudformation to create the group, user, and required policies that can be run manually before running the build script. Don't know how much of this is possible.
 - Make the created s3 bucket private on creation
 - Maybe move this whole thing into a docker image that you can just run that to build this. Would make the only requirement be docker instead of aws cli. Might be overkill.
