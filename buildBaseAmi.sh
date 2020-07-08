@@ -31,7 +31,10 @@ aws cloudformation wait stack-create-complete \
     --stack-name ${STACK_NAME}
 
 # get the instance id from the created instance
-INSTANCE_ID=$(aws cloudformation describe-stacks --stack-name ${STACK_NAME} | jq -r .Stacks[0].Outputs[0].OutputValue)
+INSTANCE_ID=$(aws cloudformation describe-stacks \
+    --stack-name ${STACK_NAME} \
+    --query 'Stacks[0].Outputs[0].OutputValue' \
+    --output text)
 
 # create the ami
 aws ec2 wait instance-stopped \
@@ -39,10 +42,11 @@ aws ec2 wait instance-stopped \
 IMAGE_ID=$(aws ec2 create-image \
     --instance-id ${INSTANCE_ID} \
     --name ${IMAGE_NAME} \
-    --description "An ami with docker on it" | jq -r .ImageId)
+    --description "An ami with docker on it" \
+    --query 'ImageId' \
+    --output text)
 aws ec2 wait image-exists \
     --image-ids ${IMAGE_ID}
-
 
 # clean up after ourselves
 # delete the stack since we no longer need it
