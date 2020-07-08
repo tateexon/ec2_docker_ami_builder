@@ -1,9 +1,10 @@
-# Cloudformation plus bash to create ami with docker
+# Create AWS AMI with Docker installed and running
+Uses cloudformation and aws cli v2.
 
 ## Instructions to build the ami:
 1. Install the aws cli.
-2. Creat an aws account. 
-3. Creat a group and a user to get an access key id and a secret access key
+2. Create an aws account. 
+3. Create a group and a user to get an access key id and a secret access key
 4. Fill out the vars.env with the gathered information.
 5. Run buildBaseAmi.sh
 
