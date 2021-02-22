@@ -5,7 +5,7 @@ Parameters:
     Type: AWS::EC2::Image::Id
     # latest amazon linux 2 as of making this, update as necessary, can probably be scripted to
     # amzn2-ami-hvm-2.0.20200520.1-x86_64-gp2
-    Default: ami-0e34e7b9ca0ace12d
+    Default: ami-0e999cbd62129e3b1
   InstanceType:
     Description: Instance type to launch EC2 instances.
     Type: String
@@ -47,6 +47,10 @@ Resources:
           # add docker permissions to user
           sudo usermod -a -G docker ec2-user
           sudo chkconfig docker on
+
+          # add docker compose
+          sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
 
           # signal the finishing of the ami
           /opt/aws/bin/cfn-signal \
