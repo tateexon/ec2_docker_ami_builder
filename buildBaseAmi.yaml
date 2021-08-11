@@ -2,10 +2,8 @@ Description: Create an AMI from an EC2 instance.
 Parameters:
   ImageId:
     Description: Image ID for base EC2 instance.
-    Type: AWS::EC2::Image::Id
-    # latest amazon linux 2 as of making this, update as necessary, can probably be scripted to
-    # amzn2-ami-hvm-2.0.20200520.1-x86_64-gp2
-    Default: ami-0e999cbd62129e3b1
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
   InstanceType:
     Description: Instance type to launch EC2 instances.
     Type: String
@@ -59,7 +57,7 @@ Resources:
             --region ${AWS::Region} \
             --resource AMICreate
           
-          # shutdonw so the ami can be created
+          # shutdown so the ami can be created
           shutdown -h now
 Outputs:
   Instance:
